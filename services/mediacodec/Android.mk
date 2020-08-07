@@ -48,16 +48,15 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_MODULE := android.hardware.media.omx@1.0-service
 LOCAL_MODULE_RELATIVE_PATH := hw
 LOCAL_VENDOR_MODULE := true
-LOCAL_32_BIT_ONLY := true
 # Since this is 32-bit-only module, only 32-bit version of the codecs are installed.
 # TODO(b/72343507): eliminate the need for manually adding .vendor suffix. This should be done
 # by the build system.
+_software_codecs :=
 LOCAL_REQUIRED_MODULES += \
 $(foreach codec,$(_software_codecs),\
   $(eval _vendor_suffix := $(if $(BOARD_VNDK_VERSION),.vendor))\
   $(codec)$(_vendor_suffix)\
 )
-_software_codecs :=
 LOCAL_INIT_RC := android.hardware.media.omx@1.0-service.rc
 
 include $(BUILD_EXECUTABLE)
