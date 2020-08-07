@@ -201,7 +201,7 @@ public:
         addParameter(
                 DefineParam(mPixelFormat, C2_PARAMKEY_PIXEL_FORMAT)
                 .withConstValue(new C2StreamPixelFormatInfo::output(
-                                     0u, HAL_PIXEL_FORMAT_YCBCR_420_888))
+                                     0u, HAL_PIXEL_FORMAT_RGB_565))
                 .build());
     }
     static C2R SizeSetter(bool mayBlock, const C2P<C2StreamPictureSizeInfo::output> &oldMe,
@@ -339,7 +339,7 @@ C2SoftAvcDec::C2SoftAvcDec(
       mIntf(intfImpl),
       mDecHandle(nullptr),
       mOutBufferFlush(nullptr),
-      mIvColorFormat(IV_YUV_420P),
+      mIvColorFormat(IV_RGB_565),
       mOutputDelay(kDefaultOutputDelay),
       mWidth(320),
       mHeight(240),
@@ -526,10 +526,10 @@ bool C2SoftAvcDec::setDecodeArgs(ivd_video_decode_ip_t *ps_decode_ip,
     if (outBuffer) {
         C2PlanarLayout layout;
         layout = outBuffer->layout();
-        displayStride = layout.planes[C2PlanarLayout::PLANE_Y].rowInc;
+        displayStride = layout.planes[C2PlanarLayout::PLANE_Y].rowInc / 2;
     }
     uint32_t displayHeight = mHeight;
-    size_t lumaSize = displayStride * displayHeight;
+    size_t lumaSize = displayStride * displayHeight * 2;
     size_t chromaSize = lumaSize >> 2;
 
     if (mStride != displayStride) {
@@ -775,7 +775,7 @@ c2_status_t C2SoftAvcDec::ensureDecoderState(const std::shared_ptr<C2BlockPool> 
         mOutBlock.reset();
     }
     if (!mOutBlock) {
-        uint32_t format = HAL_PIXEL_FORMAT_YV12;
+        uint32_t format = HAL_PIXEL_FORMAT_RGB_565;
         C2MemoryUsage usage = { C2MemoryUsage::CPU_READ, C2MemoryUsage::CPU_WRITE };
         c2_status_t err =
             pool->fetchGraphicBlock(ALIGN32(mWidth), mHeight, format, usage, &mOutBlock);

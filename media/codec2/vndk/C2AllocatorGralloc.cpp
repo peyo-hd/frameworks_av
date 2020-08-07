@@ -689,6 +689,102 @@ c2_status_t C2AllocationGralloc::map(
             break;
         }
 
+
+        case PixelFormat3::RGB_565: {
+            void *pointer = nullptr;
+            if (mMapper2) {
+                if (!mMapper2->lock(
+                        const_cast<native_handle_t *>(mBuffer),
+                        grallocUsage,
+                        { (int32_t)rect.left, (int32_t)rect.top,
+                          (int32_t)rect.width, (int32_t)rect.height },
+                        // TODO: fence
+                        hidl_handle(),
+                        [&err, &pointer](const auto &maperr, const auto &mapPointer) {
+                            err = maperr2error(maperr);
+                            if (err == C2_OK) {
+                                pointer = mapPointer;
+                            }
+                        }).isOk()) {
+                    ALOGE("failed transaction: lock(RGB_565)");
+                    return C2_CORRUPTED;
+                }
+            } else {
+                if (!mMapper3->lock(
+                        const_cast<native_handle_t *>(mBuffer),
+                        grallocUsage,
+                        { (int32_t)rect.left, (int32_t)rect.top,
+                          (int32_t)rect.width, (int32_t)rect.height },
+                        // TODO: fence
+                        hidl_handle(),
+                        [&err, &pointer](const auto &maperr, const auto &mapPointer,
+                                         int32_t bytesPerPixel, int32_t bytesPerStride) {
+                            err = maperr2error(maperr);
+                            if (err == C2_OK) {
+                                pointer = mapPointer;
+                            }
+                            (void)bytesPerPixel;
+                            (void)bytesPerStride;
+                        }).isOk()) {
+                    ALOGE("failed transaction: lock(RGB_565) (@3.0)");
+                    return C2_CORRUPTED;
+                }
+            }
+            if (err != C2_OK) {
+                ALOGD("lock failed: %d", err);
+                return err;
+            }
+            addr[C2PlanarLayout::PLANE_R] = (uint8_t *)pointer;
+            addr[C2PlanarLayout::PLANE_G] = (uint8_t *)pointer;
+            addr[C2PlanarLayout::PLANE_B] = (uint8_t *)pointer;
+            layout->type = C2PlanarLayout::TYPE_RGB;
+            layout->numPlanes = 3;
+            layout->rootPlanes = 1;
+            int32_t stride = mMapper2 ?
+                    int32_t(mInfo2.stride) :
+                    int32_t(mInfo3.stride);
+            layout->planes[C2PlanarLayout::PLANE_R] = {
+                C2PlaneInfo::CHANNEL_R,         // channel
+                2,                              // colInc
+                2 * stride,                     // rowInc
+                1,                              // mColSampling
+                1,                              // mRowSampling
+                16,                             // allocatedDepth
+                5,                              // bitDepth
+                11,                             // rightShift
+                C2PlaneInfo::NATIVE,            // endianness
+                C2PlanarLayout::PLANE_R,        // rootIx
+                0,                              // offset
+            };
+            layout->planes[C2PlanarLayout::PLANE_G] = {
+                C2PlaneInfo::CHANNEL_G,         // channel
+                2,                              // colInc
+                2 * stride,                     // rowInc
+                1,                              // mColSampling
+                1,                              // mRowSampling
+                16,                             // allocatedDepth
+                6,                              // bitDepth
+                5,                              // rightShift
+                C2PlaneInfo::NATIVE,            // endianness
+                C2PlanarLayout::PLANE_G,        // rootIx
+                0,                              // offset
+            };
+            layout->planes[C2PlanarLayout::PLANE_B] = {
+                C2PlaneInfo::CHANNEL_B,         // channel
+                2,                              // colInc
+                2 * stride,                     // rowInc
+                1,                              // mColSampling
+                1,                              // mRowSampling
+                16,                             // allocatedDepth
+                5,                              // bitDepth
+                0,                              // rightShift
+                C2PlaneInfo::NATIVE,            // endianness
+                C2PlanarLayout::PLANE_B,        // rootIx
+                0,                              // offset
+            };
+            break;
+        }
+
         case PixelFormat3::YCBCR_420_888:
             // fall-through
         case PixelFormat3::YV12:

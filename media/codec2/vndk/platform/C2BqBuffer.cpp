@@ -277,7 +277,7 @@ bool getGenerationNumber(const sp<HGraphicBufferProducer> &producer,
     using Input = HGraphicBufferProducer::DequeueBufferInput;
     using Output = HGraphicBufferProducer::DequeueBufferOutput;
     Return<void> transResult = producer->dequeueBuffer(
-            Input{640, 480, HAL_PIXEL_FORMAT_YCBCR_420_888, 0},
+            Input{640, 480, HAL_PIXEL_FORMAT_RGB_565, 0},
             [&status, &slot, &bufferNeedsReallocation, &fence]
             (HStatus hStatus, int32_t hSlot, Output const& hOutput) {
                 slot = static_cast<int>(hSlot);
