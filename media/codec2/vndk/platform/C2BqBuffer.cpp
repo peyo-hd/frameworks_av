@@ -414,10 +414,14 @@ private:
 
         sp<GraphicBuffer> &slotBuffer = mBuffers[slot];
         uint32_t outGeneration;
-        if (bufferNeedsReallocation || !slotBuffer) {
+        if (bufferNeedsReallocation || !slotBuffer || slotBuffer->handle->data[0] <= 0) {
             if (!slotBuffer) {
                 slotBuffer = new GraphicBuffer();
+            } else if (slotBuffer->handle->data[0] <= 0) {
+            	ALOGW("fetchFromIgbp_l() slotBuffer->handle(%p) data[0]:%d",
+            			slotBuffer->handle, slotBuffer->handle->data[0]);
             }
+
             // N.B. This assumes requestBuffer# returns an existing allocation
             // instead of a new allocation.
             Return<void> transResult = mProducer->requestBuffer(
