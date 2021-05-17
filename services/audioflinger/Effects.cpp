@@ -17,7 +17,7 @@
 
 
 #define LOG_TAG "AudioFlinger"
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 
 #include <algorithm>
 
@@ -47,7 +47,7 @@
 // are so verbose that we want to suppress them even when we have ALOG_ASSERT
 // turned on.  Do not uncomment the #def below unless you really know what you
 // are doing and want to see all of the extremely verbose messages.
-//#define VERY_VERY_VERBOSE_LOGGING
+#define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING
 #define ALOGVV ALOGV
 #else
