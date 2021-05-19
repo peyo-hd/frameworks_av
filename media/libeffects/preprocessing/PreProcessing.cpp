@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define LOG_TAG "PreProcessing"
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 #include <audio_effects/effect_aec.h>
 #include <audio_effects/effect_agc.h>
 #include <hardware/audio_effect.h>
@@ -1119,8 +1119,8 @@ int PreProcessingFx_Process(effect_handle_t self, audio_buffer_t* inBuffer,
 
     session->processedMsk |= (1 << effect->procId);
 
-    //    ALOGV("PreProcessingFx_Process In %d frames enabledMsk %08x processedMsk %08x",
-    //         inBuffer->frameCount, session->enabledMsk, session->processedMsk);
+        ALOGV("PreProcessingFx_Process In %ld frames enabledMsk %08x processedMsk %08x",
+             inBuffer->frameCount, session->enabledMsk, session->processedMsk);
 
     if ((session->processedMsk & session->enabledMsk) == session->enabledMsk) {
         effect->session->processedMsk = 0;
@@ -1205,7 +1205,7 @@ int PreProcessingFx_Command(effect_handle_t self, uint32_t cmdCode, uint32_t cmd
         return -EINVAL;
     }
 
-    // ALOGV("PreProcessingFx_Command: command %d cmdSize %d",cmdCode, cmdSize);
+     ALOGV("PreProcessingFx_Command: command %d cmdSize %d",cmdCode, cmdSize);
 
     switch (cmdCode) {
         case EFFECT_CMD_INIT:
@@ -1567,9 +1567,8 @@ int PreProcessingFx_ProcessReverse(effect_handle_t self, audio_buffer_t* inBuffe
 
     session->revProcessedMsk |= (1 << effect->procId);
 
-    //    ALOGV("PreProcessingFx_ProcessReverse In %d frames revEnabledMsk %08x revProcessedMsk
-    //    %08x",
-    //         inBuffer->frameCount, session->revEnabledMsk, session->revProcessedMsk);
+    ALOGV("PreProcessingFx_ProcessReverse In %ld frames revEnabledMsk %08x revProcessedMsk %08x",
+         inBuffer->frameCount, session->revEnabledMsk, session->revProcessedMsk);
 
     if ((session->revProcessedMsk & session->revEnabledMsk) == session->revEnabledMsk) {
         effect->session->revProcessedMsk = 0;
