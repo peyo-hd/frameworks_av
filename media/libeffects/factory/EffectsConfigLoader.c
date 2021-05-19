@@ -118,14 +118,22 @@ int checkLibraryPath(const char *lib_path_in, char *lib_path_out) {
     strlcpy(lib_path_out, lib_path_in, PATH_MAX);
 
     // Try exact path first
+#ifdef __LP64__
+    str = strstr(lib_path_out, "/lib64/soundfx/");
+#else
     str = strstr(lib_path_out, "/lib/soundfx/");
+#endif    
     if (str == NULL) {
         return -EINVAL;
     }
 
     // Extract library name from input path
     len = str - lib_path_out;
+#ifdef __LP64__
+    lib_name = lib_path_in + len + strlen("/lib64/soundfx/");
+#else
     lib_name = lib_path_in + len + strlen("/lib/soundfx/");
+#endif    
 
     // Then try with library name and standard path names in order of preference
     for (int i = 0; i < kLibraryPathRootSize; i++) {
