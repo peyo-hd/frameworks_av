@@ -562,7 +562,7 @@ static const preproc_ops_t sAgc2Ops = {Agc2Create,       Agc2Init,    NULL,
 int AecInit(preproc_effect_t* effect) {
     ALOGV("AecInit");
     effect->session->config = effect->session->apm->GetConfig();
-    effect->session->config.echo_canceller.mobile_mode = true;
+    effect->session->config.echo_canceller.mobile_mode = false;
     effect->session->apm->ApplyConfig(effect->session->config);
     return 0;
 }
@@ -934,8 +934,9 @@ int Session_SetConfig(preproc_session_t* session, effect_config_t* config) {
     ALOGV("Session_SetConfig sr %d cnl %08x", config->inputCfg.samplingRate,
           config->inputCfg.channels);
 
-    // AEC implementation is limited to 16kHz
-    if (config->inputCfg.samplingRate >= 32000 && !(session->createdMsk & (1 << PREPROC_AEC))) {
+    if (config->inputCfg.samplingRate >= 48000) {
+        session->apmSamplingRate = 48000;
+    } else if (config->inputCfg.samplingRate >= 32000) {
         session->apmSamplingRate = 32000;
     } else if (config->inputCfg.samplingRate >= 16000) {
         session->apmSamplingRate = 16000;
